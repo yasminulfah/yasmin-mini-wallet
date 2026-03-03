@@ -18,7 +18,8 @@ COPY . .
 RUN composer install --no-dev --optimize-autoloader
 
 # Setup permissions
-RUN chown -R www-data:www-data /var/www/storage /var/www/cache
+RUN mkdir -p /var/www/bootstrap/cache /var/www/storage/framework/cache \
+    && chown -R www-data:www-data /var/www/storage /var/www/bootstrap/cache
 
 # Port yang digunakan Railway
 EXPOSE 80
