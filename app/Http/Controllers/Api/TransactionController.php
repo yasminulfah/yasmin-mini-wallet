@@ -62,7 +62,7 @@ class TransactionController extends Controller
     public function show($id): JsonResponse
     {
         $transaction = auth()->user()->transactions()
-            ->with('relatedUser:id,name,email')
+            ->with('relatedUser:id,username,email')
             ->find($id);
 
         if (!$transaction) {
@@ -123,7 +123,7 @@ class TransactionController extends Controller
                     'transaction_id' => $transaction->id,
                     'type' => $transaction->type,
                     'amount' => $transaction->amount,
-                    'recipient' => $transaction->relatedUser->name,
+                    'recipient' => $transaction->relatedUser->username,
                     'recipient_email' => $transaction->relatedUser->email,
                     'description' => $transaction->description,
                     'date' => $transaction->created_at->format('d M Y H:i'),

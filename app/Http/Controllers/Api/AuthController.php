@@ -16,7 +16,7 @@ class AuthController extends Controller
     public function register(RegisterRequest $request): JsonResponse
     {
         $user = User::create([
-            'name' => $request->name,
+            'username' => $request->username,
             'email' => $request->email,
             'password' => Hash::make($request->password),
             'balance' => 0, // Initial balance
@@ -94,7 +94,7 @@ class AuthController extends Controller
     public function updateProfile(UpdateProfileRequest $request): JsonResponse 
     {        
         $user = auth()->user();
-        $user->name = $request->name;
+        $user->username = $request->username;
         // logika simpan foto
         $user->save();
 

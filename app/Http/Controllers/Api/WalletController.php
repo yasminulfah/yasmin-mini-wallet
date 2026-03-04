@@ -17,7 +17,7 @@ class WalletController extends Controller
             'success' => true,
             'balance' => $user->balance,
             'user' => [
-                'name' => $user->name,
+                'username' => $user->username,
                 'email' => $user->email
             ]
         ], 200);
@@ -30,7 +30,7 @@ class WalletController extends Controller
         // Mencari user berdasarkan email, tapi bukan diri sendiri
         $users = User::where('email', 'LIKE', "%{$query}%")
             ->where('id', '!=', auth()->id())
-            ->select('id', 'name', 'email')
+            ->select('id', 'username', 'email')
             ->limit(5)
             ->get();
 
