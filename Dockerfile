@@ -24,4 +24,4 @@ RUN mkdir -p /var/www/bootstrap/cache /var/www/storage/framework/cache \
 # Port yang digunakan Railway
 EXPOSE 80
 
-CMD ["php", "artisan", "serve", "--host=0.0.0.0", "--port=80"]
+CMD php artisan migrate --force && php artisan serve --host=0.0.0.0 --port=80
