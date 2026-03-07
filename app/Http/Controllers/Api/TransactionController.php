@@ -49,32 +49,24 @@ class TransactionController extends Controller
 
     public function getTransactions(Request $request): JsonResponse
     {
-        $query = auth()->user()->transactions()->with('relatedUser:id,username,email');
+        try {
+            $user = auth()->user();
+            
+            $transactions = \App\Models\Transaction::where('user_id', $user->id)->limit(5)->get();
 
-        // Filter berdasarkan range waktu
-        $range = $request->query('range');
-        if ($range === 'today') {
-            $query->whereDate('created_at', now()->today());
-        } elseif ($range === 'weekly') {
-            $query->whereBetween('created_at', [now()->startOfWeek(), now()->endOfWeek()]);
-        } elseif ($range === 'monthly') {
-            $query->whereMonth('created_at', now()->month)
-                ->whereYear('created_at', now()->year);
+            return response()->json([
+                'success' => true,
+                'message' => 'Test mode: Success',
+                'data' => $transactions
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'error_message' => $e->getMessage(),
+                'error_file' => $e->getFile(),
+                'error_line' => $e->getLine()
+            ], 500);
         }
-        
-        // Filter berdasarkan tipe 
-        if ($request->has('type')) {
-            $query->where('type', $request->type);
-        }
-
-        // Pagination
-        $transactions = $query->latest()->paginate(10);
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Transaction history retrieved',
-            'data' => $transactions 
-        ], 200);
     }
 
     /**
