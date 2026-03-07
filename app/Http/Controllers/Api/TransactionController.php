@@ -110,7 +110,14 @@ class TransactionController extends Controller
     public function transfer(TransferRequest $request): JsonResponse
     {
         $sender = auth()->user();
-        $receiver = User::where('email', $request->email)->first();
+        $receiver = User::where('username', $request->receiver_username)->first();
+
+        if (!$receiver) {
+            return response()->json([
+                'success' => false,
+                'message' => 'User with the username not found.'
+            ], 404);
+        }
 
         // Database Transaction 
         DB::beginTransaction();
