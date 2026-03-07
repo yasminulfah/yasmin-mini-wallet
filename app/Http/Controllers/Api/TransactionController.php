@@ -15,26 +15,36 @@ class TransactionController extends Controller
     // Fitur Top Up Saldo
     public function topup(TopUpRequest $request): JsonResponse
     {
-        $user = auth()->user();
+        try {
+            $user = auth()->user();
 
-        DB::transaction(function () use ($user, $request) {
-            // 1. Tambah saldo user
-            $user->increment('balance', $request->amount);
+            DB::transaction(function () use ($user, $request) {
+                // Lock row user
+                $user->lockForUpdate();
 
-            // 2. Catat mutasi
-            Transaction::create([
-                'user_id' => $user->id,
-                'type' => 'topup',
-                'amount' => $request->amount,
-                'description' => 'Top Up Saldo'
-            ]);
-        });
+                // Tambah saldo user
+                $user->increment('balance', $request->amount);
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Top Up Successful',
-            'balance' => $user->fresh()->balance 
-        ], 200);
+                // Catat mutasi
+                Transaction::create([
+                    'user_id' => $user->id,
+                    'type' => 'topup',
+                    'amount' => $request->amount,
+                    'description' => 'Top Up Saldo'
+                ]);
+            });
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Top Up Successful',
+                'balance' => $user->fresh()->balance 
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Top Up failed, please try again later.'
+            ], 500);
+        }
     }
 
     public function getTransactions(Request $request): JsonResponse
@@ -111,10 +121,10 @@ class TransactionController extends Controller
                 'description' => "Received transfer from " . $sender->email
             ]);
 
-            DB::commit();
-
             // 4. Load relasi untuk Resi
             $transaction->load('relatedUser:id,username,email');
+
+            DB::commit();
 
             return response()->json([
                 'success' => true,
