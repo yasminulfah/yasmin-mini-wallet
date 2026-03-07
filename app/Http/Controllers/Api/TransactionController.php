@@ -49,8 +49,19 @@ class TransactionController extends Controller
 
     public function getTransactions(Request $request): JsonResponse
     {
-        $query = auth()->user()->transactions()->with('relatedUser');
+        $query = auth()->user()->transactions()->with('relatedUser:id,username,email');
 
+        // Filter berdasarkan range waktu
+        $range = $request->query('range');
+        if ($range === 'today') {
+            $query->whereDate('created_at', now()->today());
+        } elseif ($range === 'weekly') {
+            $query->whereBetween('created_at', [now()->startOfWeek(), now()->endOfWeek()]);
+        } elseif ($range === 'monthly') {
+            $query->whereMonth('created_at', now()->month)
+                ->whereYear('created_at', now()->year);
+        }
+        
         // Filter berdasarkan tipe 
         if ($request->has('type')) {
             $query->where('type', $request->type);
