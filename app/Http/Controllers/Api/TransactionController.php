@@ -49,45 +49,14 @@ class TransactionController extends Controller
 
     public function getTransactions(Request $request)
     {
-        try {
-            // 1. Dapatkan user yang benar-benar terautentikasi
-            $user = auth()->user();
-            if (!$user) {
-                return response()->json(['message' => 'Unauthenticated'], 401);
-            }
-
-            // 2. Ambil data dengan query paling dasar (Tanpa with, tanpa paginate)
-            // Kita hanya mengambil 10 transaksi terbaru milik user
-            $transactions = \App\Models\Transaction::where('user_id', $user->id)
-                                ->latest()
-                                ->limit(10)
-                                ->get();
-
-            // 3. Kita format manual agar tidak bergantung pada Resource/Relasi yang mungkin error
-            $data = $transactions->map(function ($trx) {
-                return [
-                    'id' => $trx->id,
-                    'type' => $trx->type,
-                    'amount' => $trx->amount,
-                    'description' => $trx->description,
-                    'date' => $trx->created_at ? $trx->created_at->format('d M Y') : '-'
-                ];
-            });
-
-            return response()->json([
-                'success' => true,
-                'data' => $data
-            ]);
-
-        } catch (\Exception $e) {
-            // Menangkap error sedetail mungkin
-            return response()->json([
-                'message' => 'Error ditemukan!',
-                'error' => $e->getMessage(),
-                'line' => $e->getLine()
-            ], 500);
-        }
-    }
+    // Jika kode ini berhasil, berarti masalahnya ada di query database
+    // Jika kode ini tetap 500, berarti masalahnya ada di konfigurasi Laravel/Environment
+    return response()->json([
+        'success' => true,
+        'message' => 'Controller terpanggil dengan sukses!',
+        'received_range' => $request->query('range')
+    ]);
+}
 
     /**
      * Display a specific transaction detail
