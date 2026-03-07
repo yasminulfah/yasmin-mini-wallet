@@ -114,7 +114,7 @@ class TransactionController extends Controller
             DB::commit();
 
             // 4. Load relasi untuk Resi
-            $transaction->load('relatedUser:id,name,email');
+            $transaction->load('relatedUser:id,username,email');
 
             return response()->json([
                 'success' => true,
