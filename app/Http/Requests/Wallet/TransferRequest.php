@@ -22,12 +22,12 @@ class TransferRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'email' => [
+            'receiver_username' => [
                 'required',
-                'email',
-                'exists:users,email',
+                'string',
+                'exists:users,username',
                 function ($attribute, $value, $fail) {
-                    if ($value === auth()->user()->email) {
+                    if ($value === auth()->user()->username) {
                         $fail('You cannot transfer money to yourself.');
                     }
                 },
@@ -48,8 +48,8 @@ class TransferRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'email.required' => 'Recipient email is required.',
-            'email.exists'   => 'Recipient user not found.',
+            'receiver_username.required' => 'Recipient username is required.',
+            'receiver_username.exists'   => 'Recipient user not found.',
             'amount.required' => 'Nominal cannot be empty.',
             'amount.integer'  => 'Nominal must be a number.',
             'amount.min'      => 'Transfer amount must be at least 1.',
