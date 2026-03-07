@@ -9,6 +9,7 @@ use App\Http\Requests\Wallet\TopUpRequest;
 use App\Http\Requests\Wallet\TransferRequest;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 
 class TransactionController extends Controller
 {
@@ -47,17 +48,41 @@ class TransactionController extends Controller
         }
     }
 
-    public function getTransactions(Request $request)
+    public function getTransactions(Request $request): JsonResponse
     {
-    // Jika kode ini berhasil, berarti masalahnya ada di query database
-    // Jika kode ini tetap 500, berarti masalahnya ada di konfigurasi Laravel/Environment
-    return response()->json([
-        'success' => true,
-        'message' => 'Controller terpanggil dengan sukses!',
-        'received_range' => $request->query('range')
-    ]);
-}
+        try {
+            $user = auth()->user();
 
+            $query = Transaction::where('user_id', $user->id)
+                ->with('relatedUser'); 
+
+            // Logika Filter Berdasarkan Range
+            $range = $request->query('range', 'today');
+
+            if ($range === 'today') {
+                $query->whereDate('created_at', today());
+            } elseif ($range === 'weekly') {
+                $query->whereDate('created_at', '>=', now()->subDays(7));
+            } elseif ($range === 'monthly') {
+                $query->whereMonth('created_at', now()->month)
+                      ->whereYear('created_at', now()->year);
+            }
+
+            // Pagination
+            $transactions = $query->latest()->paginate(10);
+
+            return response()->json([
+                'success' => true,
+                'data' => $transactions
+            ], 200);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Terjadi kesalahan pada server: ' . $e->getMessage()
+            ], 500);
+        }
+    }
     /**
      * Display a specific transaction detail
      */
