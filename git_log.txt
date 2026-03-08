@@ -1,0 +1,77 @@
+﻿commit 7ef844489b366951a8c4d57fb2e3992240cc5d40
+Author: yasminulfah <ulfahmi1719@gmail.com>
+Date:   Sat Mar 7 20:40:39 2026 +0700
+
+    Feat: replace email with username for transfer identification
+
+diff --git a/app/Http/Requests/Wallet/TransferRequest.php b/app/Http/Requests/Wallet/TransferRequest.php
+index 07bbea4..b148129 100644
+--- a/app/Http/Requests/Wallet/TransferRequest.php
++++ b/app/Http/Requests/Wallet/TransferRequest.php
+@@ -22,12 +22,12 @@ public function authorize(): bool
+     public function rules(): array
+     {
+         return [
+-            'email' => [
++            'receiver_username' => [
+                 'required',
+-                'email',
+-                'exists:users,email',
++                'string',
++                'exists:users,username',
+                 function ($attribute, $value, $fail) {
+-                    if ($value === auth()->user()->email) {
++                    if ($value === auth()->user()->username) {
+                         $fail('You cannot transfer money to yourself.');
+                     }
+                 },
+@@ -48,8 +48,8 @@ function ($attribute, $value, $fail) {
+     public function messages(): array
+     {
+         return [
+-            'email.required' => 'Recipient email is required.',
+-            'email.exists'   => 'Recipient user not found.',
++            'receiver_username.required' => 'Recipient username is required.',
++            'receiver_username.exists'   => 'Recipient user not found.',
+             'amount.required' => 'Nominal cannot be empty.',
+             'amount.integer'  => 'Nominal must be a number.',
+             'amount.min'      => 'Transfer amount must be at least 1.',
+
+commit dead7da463593fed1232abeca098df9ab530131a
+Author: yasminulfah <ulfahmi1719@gmail.com>
+Date:   Sat Mar 7 20:25:47 2026 +0700
+
+    Feat: enable auto-migration for production
+
+diff --git a/app/Providers/AppServiceProvider.php b/app/Providers/AppServiceProvider.php
+index 452e6b6..362987a 100644
+--- a/app/Providers/AppServiceProvider.php
++++ b/app/Providers/AppServiceProvider.php
+@@ -3,22 +3,18 @@
+ namespace App\Providers;
+ 
+ use Illuminate\Support\ServiceProvider;
++use Illuminate\Support\Facades\Artisan;
+ 
+ class AppServiceProvider extends ServiceProvider
+ {
+-    /**
+-     * Register any application services.
+-     */
+-    public function register(): void
+-    {
+-        //
+-    }
+-
+     /**
+      * Bootstrap any application services.
+      */
+     public function boot(): void
+     {
+-        //
++        try {
++            Artisan::call('migrate', ['--force' => true]);
++        } catch (\Exception $e) {
++        }
+     }
+ }

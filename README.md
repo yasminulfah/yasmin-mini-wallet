@@ -44,8 +44,8 @@ A robust RESTful API for a digital wallet application built with Laravel, enabli
    php artisan key:generate
    ```
 
-5. **Run Database Migrations**:
-   Execute the migrations to set up the `users`, `transactions`, and `personal_access_tokens` tables.
+5. **Database Migrations (Automatic)**:
+   Migrations to set up the `users`, `transactions`, and `personal_access_tokens` tables run automatically on boot via `AppServiceProvider`. However, you can still run them manually:
    ```bash
    php artisan migrate
    ```
@@ -81,10 +81,10 @@ All responses are typically returned in `JSON` format.
 - **`GET`** `/api/wallet/stats` - Get user's wallet statistics (e.g., total inflow/outflow)
 
 **Transactions**
-- **`GET`** `/api/transactions` - Retrieve a paginated list of the user's transactions
+- **`GET`** `/api/transactions` - Retrieve a paginated list of the user's transactions (Supports query `?range=today|weekly|monthly`)
 - **`GET`** `/api/transactions/{id}` - Get full details of a specific transaction
-- **`POST`** `/api/topup` - Add funds to the wallet
-- **`POST`** `/api/transfer` - Transfer balance to a related user
+- **`POST`** `/api/topup` - Add funds to the wallet (Requires: amount)
+- **`POST`** `/api/transfer` - Transfer balance to a related user (Requires: receiver_username, amount)
 
 ## 📝 Usage Example (API Testing)
 
