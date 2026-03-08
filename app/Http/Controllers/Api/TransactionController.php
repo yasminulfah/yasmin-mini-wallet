@@ -133,7 +133,7 @@ class TransactionController extends Controller
                 'related_user_id' => $receiver->id,
                 'type' => 'transfer_out',
                 'amount' => $request->amount,
-                'description' => "Transfer to " . $receiver->email . " was successful."
+                'description' => "Transfer to " . $receiver->username . " was successful."
             ]);
 
             // 3. Simpan record transaksi untuk penerima (transfer_in)
@@ -142,7 +142,7 @@ class TransactionController extends Controller
                 'related_user_id' => $sender->id,
                 'type' => 'transfer_in',
                 'amount' => $request->amount,
-                'description' => "Received transfer from " . $sender->email
+                'description' => "Received transfer from " . $sender->username
             ]);
 
             // 4. Load relasi untuk Resi
